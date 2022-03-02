@@ -4,5 +4,6 @@
 #
 # Post-install intercept for mime-xdg.bbclass
 
-update-desktop-database $D${desktop_dir}
+#update-desktop-database $D${desktop_dir}
+
 
