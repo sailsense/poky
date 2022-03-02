@@ -4,6 +4,8 @@
 
 from abc import ABCMeta, abstractmethod
 import os
+import pwd
+import stat
 import glob
 import subprocess
 import shutil
@@ -431,10 +433,36 @@ class PackageManager(object, metaclass=ABCMeta):
         intercepts_dir = self.intercepts_dir
 
         bb.note("Running intercept scripts:")
+        bb.note("username=" + pwd.getpwuid( os.getuid() )[ 0 ])
         os.environ['D'] = self.target_rootfs
         os.environ['STAGING_DIR_NATIVE'] = self.d.getVar('STAGING_DIR_NATIVE')
+
+        bb.note("run_intercepts: dir=")
+        bb.note("------------------------")
+        bb.note(intercepts_dir)
+        bb.note("------------------------")
+
+        #list script attributes
+        lsCommand = "/bin/ls" + " -lrta " + intercepts_dir + "/";
+        bb.note("Command: " + lsCommand);
+        stream = os.popen(lsCommand)
+        output = stream.read()
+        bb.note("Output:\n%s" % (output))
+
         for script in os.listdir(intercepts_dir):
             script_full = os.path.join(intercepts_dir, script)
+
+            bb.note("Processing script: " + script_full)
+            executable = stat.S_IEXEC | stat.S_IXGRP | stat.S_IXOTH
+            st = os.stat(script_full)
+            mode = st.st_mode
+            if mode & executable:
+                bb.note("STAT(): File IS executable: " + oct(mode))
+            else:
+                bb.note("STAT(): File IS NOT executable: " + oct(mode))
+
+            if not os.access(script_full, os.X_OK):
+                bb.note("not os.access X")
 
             if script == "postinst_intercept" or not os.access(script_full, os.X_OK):
                 continue
@@ -463,14 +491,16 @@ class PackageManager(object, metaclass=ABCMeta):
                         bb.note("The postinstall intercept hook '%s' could not be executed due to missing qemu usermode support, details in %s/log.do_%s"
                                 % (script, self.d.getVar('T'), self.d.getVar('BB_CURRENTTASK')))
                     else:
-                        bb.fatal("The postinstall intercept hook '%s' failed, details in %s/log.do_%s" % (script, self.d.getVar('T'), self.d.getVar('BB_CURRENTTASK')))
+                        bb.note("The postinstall intercept hook '%s' failed, details in %s/log.do_%s" % (script, self.d.getVar('T'), self.d.getVar('BB_CURRENTTASK')))
+#                        bb.fatal("The postinstall intercept hook '%s' failed, details in %s/log.do_%s" % (script, self.d.getVar('T'), self.d.getVar('BB_CURRENTTASK')))
                 else:
                     if "qemuwrapper: qemu usermode is not supported" in e.output.decode("utf-8"):
                         bb.note("The postinstall intercept hook '%s' could not be executed due to missing qemu usermode support, details in %s/log.do_%s"
                                 % (script, self.d.getVar('T'), self.d.getVar('BB_CURRENTTASK')))
                         self._postpone_to_first_boot(script_full)
                     else:
-                        bb.fatal("The postinstall intercept hook '%s' failed, details in %s/log.do_%s" % (script, self.d.getVar('T'), self.d.getVar('BB_CURRENTTASK')))
+                        bb.note("The postinstall intercept hook '%s' failed, details in %s/log.do_%s" % (script, self.d.getVar('T'), self.d.getVar('BB_CURRENTTASK')))
+#                        bb.fatal("The postinstall intercept hook '%s' failed, details in %s/log.do_%s" % (script, self.d.getVar('T'), self.d.getVar('BB_CURRENTTASK')))
 
     @abstractmethod
     def update(self):
