@@ -22,6 +22,8 @@ intercept_script=$INTERCEPT_DIR/$1 && shift
 package_name=$1 && shift
 mlprefix=$(echo $1 |sed -ne "s/^mlprefix=\(.*\)-/\1/p") && shift
 
+echo "POSTINST_INTERCEPT: Installing intercept for $intercept_script, package_name=$package_name, mlprefix=$mlprefix"
+
 # if the hook we want to install does not exist, then there's nothing we can do
 [ -f "$intercept_script" ] || exit 1
 
@@ -56,3 +58,5 @@ else
 	echo "##PKGS: ${package_name} " >> $intercept_script
 fi
 
+folder_info=$(ls -lrta $INTERCEPT_DIR)
+echo -e "POSTINST_INTERCEPT: folder after installation: \n $folder_info \n"
