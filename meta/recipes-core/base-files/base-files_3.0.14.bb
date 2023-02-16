@@ -135,7 +135,8 @@ do_install () {
 	# deal with hostname
 	if [ "${hostname}" ]; then
 		echo ${hostname} > ${D}${sysconfdir}/hostname
-		echo "127.0.1.1 ${hostname}" >> ${D}${sysconfdir}/hosts
+		echo -e "\n" >> ${D}${sysconfdir}/hosts
+		echo -e "127.0.1.1 ${hostname}\n" >> ${D}${sysconfdir}/hosts
 	fi
 }
 
