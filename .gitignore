@@ -31,3 +31,10 @@ pull-*/
 bitbake/lib/toaster/contrib/tts/backlog.txt
 bitbake/lib/toaster/contrib/tts/log/*
 bitbake/lib/toaster/contrib/tts/.cache/*
+documentation/poky.ent
+documentation/bsp-guide/bsp-guide.xml
+documentation/dev-manual/dev-manual.xml
+documentation/mega-manual/mega-manual.xml
+documentation/profile-manual/profile-manual.xml
+documentation/toaster-manual/toaster-manual.xml
+documentation/tools/mega-manual.sed
